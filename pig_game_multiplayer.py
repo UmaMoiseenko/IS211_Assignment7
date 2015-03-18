@@ -91,6 +91,7 @@ def main():
     if args.numPlayers:
         numPlayers = int(args.numPlayers)
         players = {}
+        win_point = 100
         
         game_is_true = True 
 
@@ -104,7 +105,7 @@ def main():
             game.total = 0
             game.welcomeMessage(players[current_player])
 
-            while players[current_player].total < 10 :
+            while players[current_player].total < win_point :
                 roll = players[current_player].decision()
 
                 if roll == 'r':
@@ -119,7 +120,7 @@ def main():
                     else:
                         game.total = game.turnScore(new_roll)
                         game.statusMessage(players[current_player],new_roll)
-                        game.totalScoreCheck(players[current_player], 10)
+                        game.totalScoreCheck(players[current_player], win_point)
 
                 elif roll == 'h':
                     print players[current_player].name, " adds ", game.total, " points to his total of ", players[current_player].total
