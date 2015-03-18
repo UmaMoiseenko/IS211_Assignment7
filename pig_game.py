@@ -1,10 +1,6 @@
-#to do 
-# add sid
-# add number of players
-# functional req
-
 import random
 import sys
+import time
 
 
 class Player:
@@ -19,78 +15,88 @@ class Player:
         roll = raw_input("Would you like to roll? r = roll, h = pass")
         return roll
 
-
 class Dice:
     def __init__(self, roll=0):
         self.roll =  roll
 
-    def newRoll(self): #add seed
+    def newRoll(self, seed): 
+        random.seed(seed)
         self.roll = random.randrange(1, 7)
         return self.roll
 
-
-class GameWatcher:
+class GameCenter:
     def __int__(self, current_player, total=0):
         self.player = current_player
         self.total = total
 
-    def updateTotal(self, newPoint):
+    def turnScore(self, newPoint):
         self.total = self.total + newPoint
         return self.total
 
-    def turnToggle(self, current_player):
-         return 2 if current_player == 1 else 1
+    def totalScoreCheck(self, player, win_ponts):
+        score = player.total + self.total
+        if score >= 100:
+            print "%s congratulations! You win!!" % (player.name)
+            print 'Your final score is ', player.total
+            self.gameOver()
+
+    def turnSwitch(self, current_player):
+        self.total = 0
+        print 'Switching turns.'
+        return 2 if current_player == 1 else 1
+
+    def statusMessage(self, player, new_roll):
+        print "%s rolled %s. Score for this turn is %s and player's total score is %s" % \
+        (player.name, new_roll, self.total, player.total )
+
+    def welcomeMessage(self, player):
+        print "Howdy %s, your current score is %s. Good luck!" % \
+        (player.name,player.total)
 
     def gameOver(self):
+        print "Restart to play again."    
         sys.exit()
 
 def main():
 
-    dice = Dice()
-    game = GameWatcher()
+    seed = 0
+    dice = Dice(seed)
+    game = GameCenter()
     players = { 1: Player('player1'),
                 2: Player('player2')}
 
     current_player = 1
     game.total = 0
+    game.welcomeMessage(players[current_player])
 
     while players[current_player].total < 100 :
         roll = players[current_player].decision()
 
         if roll == 'r':
-            new_roll = dice.newRoll()
-            print "DICE: ", new_roll
+            new_roll = dice.newRoll(seed)
 
             if new_roll == 1:
                 game.total = 0
-                current_player = game.turnToggle(current_player)
-                print 'Now playing player', current_player
+                print "Oh no! "
+                game.statusMessage(players[current_player],new_roll)
+                current_player = game.turnSwitch(current_player)
+                game.welcomeMessage(players[current_player])
             else:
-                game.total = game.updateTotal(new_roll)
-                print "Your turn total = ", game.total 
-
-                if (game.total+players[current_player].total)>=100: # ToDo revise
-                    players[current_player].total = game.total+players[current_player].total
-                    break
+                game.total = game.turnScore(new_roll)
+                game.statusMessage(players[current_player],new_roll)
+                game.totalScoreCheck(players[current_player], 100)
 
         elif roll == 'h':
-            print "player", current_player, " adds ", game.total, " points to his total of ", players[current_player].total
+            print players[current_player].name, " adds ", game.total, " points to his total of ", players[current_player].total
             players[current_player].newTotal(game.total)
-            current_player = game.turnToggle(current_player)
-            game.total = 0
+            current_player = game.turnSwitch(current_player)
+            game.welcomeMessage(players[current_player])
 
-            print 'Now playing player', current_player
         else:
             print "enter r - to roll or h - to pass"
 
-
-    print "Player",current_player," congratulations! You win!!"
-    print 'Your final score is ', players[current_player].total
-    print "Restart to play again."
-
-    game.gameOver()
+        seed = time.time()
 
 
 if __name__ == '__main__':
     main()
-
