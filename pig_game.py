@@ -36,6 +36,7 @@ class GameCenter:
     def totalScoreCheck(self, player, win_ponts):
         score = player.total + self.total
         if score >= win_ponts:
+            player.total = score
             print "%s congratulations! You win!!" % (player.name)
             print 'Your final score is ', player.total
             self.gameOver()
